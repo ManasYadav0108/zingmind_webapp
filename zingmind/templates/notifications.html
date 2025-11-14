@@ -1,0 +1,27 @@
+<h2>Notifications</h2>
+<div id="notifications">
+    {% for n in notifications %}
+        <div class="notification {% if not n.is_read %}unread{% endif %}" data-id="{{ n.id }}">
+            <strong>{{ n.title }}</strong><br>
+            <small>{{ n.message }}</small>
+        </div>
+    {% empty %}
+        <p>No notifications found.</p>
+    {% endfor %}
+</div>
+
+<script>
+document.querySelectorAll('.notification').forEach(el => {
+    el.addEventListener('click', () => {
+        const id = el.dataset.id;
+        fetch(`/notifications/mark-read/${id}/`).then(() => {
+            el.classList.remove('unread');
+        });
+    });
+});
+</script>
+
+<style>
+.unread { font-weight: bold; background-color: #eef; padding: 5px; margin-bottom: 5px; cursor: pointer; }
+.notification { padding: 5px; margin-bottom: 5px; cursor: pointer; }
+</style>

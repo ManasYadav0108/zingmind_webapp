@@ -1,0 +1,396 @@
+ {% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HRMS Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
+        body { background:#f4f6fb; display:flex; min-height:100vh; color:#333; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background:#1e293b;
+            color:#fff;
+            display:flex;
+            flex-direction:column;
+            justify-content:space-between;
+            position:fixed;
+            height:100%;
+            padding:25px 0;
+            box-shadow:2px 0 10px rgba(0,0,0,0.1);
+        }
+        .sidebar-header { text-align:center; margin-bottom:40px; }
+        .sidebar-header h2 { font-size:22px; font-weight:700; letter-spacing:1px; }
+        .menu { display:flex; flex-direction:column; gap:10px; }
+        .menu a { color:#cbd5e1; text-decoration:none; padding:12px 20px; display:flex; align-items:center; gap:12px; transition:0.3s; border-radius:8px; margin:0 10px; }
+        .menu a:hover, .menu a.active { background:#334155; color:#fff; }
+        .menu a i { font-size:18px; }
+        .logout { margin:15px 20px; text-decoration:none; color:#f87171; display:flex; align-items:center; gap:10px; }
+
+        /* Main Content */
+        .main-content { flex:1; margin-left:260px; padding:30px 40px; }
+        .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; }
+        .topbar h1 { font-size:26px; font-weight:700; color:#0f172a; }
+
+        /* Dashboard Cards */
+        .cards { display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:25px; }
+        .card {
+            background:#fff;
+            border-radius:16px;
+            box-shadow:0 4px 15px rgba(0,0,0,0.05);
+            padding:25px;
+            transition:0.3s ease;
+            text-decoration:none;
+            color:inherit;
+        }
+        .card:hover { transform:translateY(-5px); box-shadow:0 10px 25px rgba(0,0,0,0.1); }
+        .card i { font-size:32px; color:#2563eb; margin-bottom:10px; }
+        .card h3 { font-size:18px; font-weight:600; margin-bottom:5px; }
+        .card p { font-size:14px; color:#64748b; }
+
+        /* Responsive */
+        @media(max-width:900px){ .sidebar{width:200px;} .main-content{margin-left:200px; padding:20px;} }
+        @media(max-width:700px){ .sidebar{display:none;} .main-content{margin:0; padding:20px;} }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div>
+            <div class="sidebar-header">
+                <h2>HRMS Admin</h2>
+            </div>
+            <div class="menu">
+                <a href="{% url 'dashboard' %}" class="active"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="{% url 'manage_employees' %}"><i class="fas fa-users"></i> Employees</a>
+                <a href="{% url 'manage_payroll' %}"><i class="fas fa-money-bill-wave"></i> Payroll</a>
+                <a href="{% url 'manage_attendance' %}"><i class="fas fa-calendar-check"></i> Attendance</a>
+                <a href="{% url 'manage_leave' %}"><i class="fas fa-plane-departure"></i> Leave</a>
+                <a href="{% url 'manage_reports' %}"><i class="fas fa-chart-line"></i> Reports</a>
+                <a href="{% url 'manage_settings' %}"><i class="fas fa-cog"></i> Settings</a>
+            </div>
+        </div>
+        <a href="/logout/" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="topbar">
+            <h1>Welcome, Admin</h1>
+            <i class="fas fa-bell" style="font-size:20px;"></i>
+        </div>
+
+        <div class="cards">
+            <a href="{% url 'manage_employees' %}">
+                <div class="card">
+                    <i class="fas fa-users"></i>
+                    <h3>Total Employees</h3>
+                    <p>{{ total_employees }} active employees</p>
+                </div>
+            </a>
+
+            <a href="{% url 'manage_payroll' %}">
+                <div class="card">
+                    <i class="fas fa-wallet"></i>
+                    <h3>Payroll Overview</h3>
+                    <p>Last processed: {{ last_payroll_month }}</p>
+                </div>
+            </a>
+
+            <a href="{% url 'manage_attendance' %}">
+                <div class="card">
+                    <i class="fas fa-calendar-check"></i>
+                    <h3>Attendance</h3>
+                    <p>{{ attendance_percent }}% attendance this month</p>
+                </div>
+            </a>
+
+            <a href="{% url 'manage_leave' %}">
+                <div class="card">
+                    <i class="fas fa-umbrella-beach"></i>
+                    <h3>Leave Requests</h3>
+                    <p>{{ pending_leaves }} pending approvals</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>  {% endcomment %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRMS HR Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js for Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- AOS Library for Animations -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; min-height: 100vh; color: #333; overflow-x: hidden; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #2d3748 0%, #1a202c 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: fixed;
+            height: 100%;
+            padding: 30px 0;
+            box-shadow: 4px 0 25px rgba(0, 0, 0, 0.2);
+            border-right: 2px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        .sidebar-header { text-align: center; margin-bottom: 50px; }
+        .sidebar-header h2 { font-size: 24px; font-weight: 700; letter-spacing: 1px; background: linear-gradient(45deg, #68d391, #63b3ed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sidebar-header .logo { font-size: 40px; color: #68d391; margin-bottom: 10px; }
+        .menu { display: flex; flex-direction: column; gap: 15px; }
+        .menu a { color: #e2e8f0; text-decoration: none; padding: 15px 25px; display: flex; align-items: center; gap: 15px; transition: all 0.4s ease; border-radius: 15px; margin: 0 15px; position: relative; overflow: hidden; }
+        .menu a::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(104, 211, 145, 0.2), transparent); transition: left 0.6s; }
+        .menu a:hover::before, .menu a.active::before { left: 100%; }
+        .menu a:hover, .menu a.active { background: linear-gradient(135deg, #4a5568, #718096); color: #fff; transform: translateX(8px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); }
+        .menu a i { font-size: 20px; transition: transform 0.3s; }
+        .menu a:hover i { transform: scale(1.2) rotate(5deg); }
+        .logout { margin: 20px 25px; text-decoration: none; color: #fc8181; display: flex; align-items: center; gap: 12px; transition: all 0.3s ease; border-radius: 10px; padding: 12px; }
+        .logout:hover { background: rgba(252, 129, 129, 0.1); transform: translateY(-3px); box-shadow: 0 5px 15px rgba(252, 129, 129, 0.2); }
+
+        /* Main Content */
+        .main-content { flex: 1; margin-left: 280px; padding: 40px; background: #f7fafc; border-radius: 30px 0 0 0; min-height: 100vh; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .topbar h1 { font-size: 28px; font-weight: 700; color: #2d3748; }
+        .topbar .user-info { display: flex; align-items: center; gap: 15px; }
+        .topbar .user-info img { width: 50px; height: 50px; border-radius: 50%; border: 3px solid #68d391; }
+        .topbar .user-info span { font-weight: 500; color: #4a5568; }
+        .topbar i { font-size: 22px; color: #a0aec0; transition: all 0.3s; cursor: pointer; }
+        .topbar i:hover { transform: scale(1.2); color: #68d391; }
+
+        /* Dashboard Widgets */
+        .widgets { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-bottom: 40px; }
+        .widget {
+            background: linear-gradient(135deg, #ffffff 0%, #edf2f7 100%);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .widget::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(104, 211, 145, 0.1), transparent); transition: left 0.7s; }
+        .widget:hover::before { left: 100%; }
+        .widget:hover { transform: translateY(-10px) scale(1.03); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(104, 211, 145, 0.3); }
+        .widget-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .widget-header i { font-size: 36px; color: #68d391; }
+        .widget-header h3 { font-size: 20px; font-weight: 600; color: #2d3748; }
+        .widget p { font-size: 16px; color: #718096; margin-bottom: 15px; }
+        .widget .stat { font-size: 32px; font-weight: 700; color: #2d3748; }
+
+        /* Chart Section */
+        .chart-section { background: #fff; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); margin-bottom: 40px; }
+        .chart-section h3 { font-size: 22px; font-weight: 600; color: #2d3748; margin-bottom: 20px; }
+        .chart-container { position: relative; height: 300px; }
+
+        /* Recent Activities */
+        .activities { background: #fff; border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); }
+        .activities h3 { font-size: 22px; font-weight: 600; color: #2d3748; margin-bottom: 20px; }
+        .activity-list { list-style: none; }
+        .activity-list li { display: flex; align-items: center; gap: 15px; padding: 15px 0; border-bottom: 1px solid #e2e8f0; }
+        .activity-list li:last-child { border-bottom: none; }
+        .activity-list li i { font-size: 18px; color: #68d391; }
+        .activity-list li .activity-text { flex: 1; }
+        .activity-list li .activity-text strong { color: #2d3748; }
+        .activity-list li .activity-text span { color: #a0aec0; font-size: 14px; }
+
+        /* Responsive */
+        @media (max-width: 1024px) { .sidebar { width: 250px; } .main-content { margin-left: 250px; } }
+        @media (max-width: 768px) { .sidebar { display: none; } .main-content { margin: 0; padding: 20px; border-radius: 0; } .widgets { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar" data-aos="fade-right" data-aos-duration="1200">
+        <div>
+            <div class="sidebar-header">
+                <div class="logo"><i class="fas fa-building"></i></div>
+                <h2>HRMS HR</h2>
+            </div>
+            <div class="menu">
+                <a href="{% url 'dashboard' %}" class="active" data-aos="fade-in" data-aos-delay="200"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a href="{% url 'manage_employees' %}" data-aos="fade-in" data-aos-delay="300"><i class="fas fa-users"></i> Employees</a>
+                <a href="{% url 'manage_payroll' %}" data-aos="fade-in" data-aos-delay="500"><i class="fas fa-money-bill-wave"></i> Payroll</a>
+                <a href="{% url 'manage_attendance' %}" data-aos="fade-in" data-aos-delay="600"><i class="fas fa-calendar-check"></i> Attendance</a>
+                <a href="{% url 'manage_leave' %}" data-aos="fade-in" data-aos-delay="700"><i class="fas fa-plane-departure"></i> Leave</a>
+                <a href="{% url 'manage_reports' %}" data-aos="fade-in" data-aos-delay="900"><i class="fas fa-chart-line"></i> Reports</a>
+                <a href="{% url 'manage_settings' %}" data-aos="fade-in" data-aos-delay="1100"><i class="fas fa-cog"></i> Settings</a>
+            </div>
+        </div>
+        <a href="/logout/" class="logout" data-aos="fade-up" data-aos-delay="1200"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="topbar" data-aos="fade-down" data-aos-duration="1000">
+            <h1>HR Dashboard</h1>
+            <div class="user-info">
+                <i class="fas fa-bell"></i>
+                <img src="https://via.placeholder.com/50" alt="User Avatar">
+                <span>HR Manager</span>
+            </div>
+        </div>
+
+        <div class="widgets">
+            <div class="widget" data-aos="zoom-in" data-aos-delay="200">
+                <div class="widget-header">
+                    <i class="fas fa-users"></i>
+                    <h3>Total Employees</h3>
+                </div>
+                <p>Active workforce</p>
+                <div class="stat">{{ total_employees }}</div>
+            </div>
+
+            <div class="widget" data-aos="zoom-in" data-aos-delay="400">
+                <div class="widget-header">
+                    <i class="fas fa-user-plus"></i>
+                    <h3>Open Positions</h3>
+                </div>
+                <p>Available roles</p>
+                <div class="stat">{{ open_positions }}</div>
+            </div>
+
+            <div class="widget" data-aos="zoom-in" data-aos-delay="600">
+                <div class="widget-header">
+                    <i class="fas fa-calendar-check"></i>
+                    <h3>Attendance Rate</h3>
+                </div>
+                <p>This month</p>
+                <div class="stat">{{ attendance_percent }}%</div>
+            </div>
+
+            <div class="widget" data-aos="zoom-in" data-aos-delay="800">
+                <div class="widget-header">
+                    <i class="fas fa-umbrella-beach"></i>
+                    <h3>Pending Leaves</h3>
+                </div>
+                <p>Awaiting approval</p>
+                <div class="stat">{{ pending_leaves }}</div>
+            </div>
+
+            <div class="widget" data-aos="zoom-in" data-aos-delay="1000">
+                <div class="widget-header">
+                    <i class="fas fa-chart-bar"></i>
+                    <h3>Performance Reviews</h3>
+                </div>
+                <p>Due this quarter</p>
+                <div class="stat">{{ pending_reviews }}</div>
+            </div>
+
+            <div class="widget" data-aos="zoom-in" data-aos-delay="1200">
+                <div class="widget-header">
+                    <i class="fas fa-wallet"></i>
+                    <h3>Payroll Budget</h3>
+                </div>
+                <p>Monthly expenditure</p>
+                <div class="stat">${{ payroll_budget }}</div>
+            </div>
+        </div>
+
+        <div class="chart-section" data-aos="fade-up" data-aos-delay="1400">
+            <h3>Employee Growth & Attendance Trends</h3>
+            <div class="chart-container">
+                <canvas id="growthChart"></canvas>
+            </div>
+        </div>
+
+        <div class="activities" data-aos="fade-up" data-aos-delay="1600">
+            <h3>Recent Activities</h3>
+            <ul class="activity-list">
+                <li>
+                    <i class="fas fa-user-plus"></i>
+                    <div class="activity-text">
+                        <strong>New hire: John Doe</strong><br>
+                        <span>Joined Marketing Department - 2 hours ago</span>
+                    </div>
+                </li>
+                <li>
+                    <i class="fas fa-plane-departure"></i>
+                    <div class="activity-text">
+                        <strong>Leave approved</strong><br>
+                        <span>Sarah Smith - Annual Leave - 1 day ago</span>
+                    </div>
+                </li>
+                <li>
+                    <i class="fas fa-chart-bar"></i>
+                    <div class="activity-text">
+                        <strong>Performance review completed</strong><br>
+                        <span>Mike Johnson - 3 days ago</span>
+                    </div>
+                </li>
+                <li>
+                    <i class="fas fa-graduation-cap"></i>
+                    <div class="activity-text">
+                        <strong>Training session scheduled</strong><br>
+                        <span>Leadership Workshop - Next week</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Initialize AOS
+        AOS.init();
+
+        // Chart.js for Growth Chart
+        const ctx = document.getElementById('growthChart').getContext('2d');
+        const growthChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Employee Growth',
+                    data: [120, 125, 130, 135, 140, 145],
+                    borderColor: '#68d391',
+                    backgroundColor: 'rgba(104, 211, 145, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: 'Attendance Rate (%)',
+                    data: [85, 88, 90, 92, 89, 91],
+                    borderColor: '#63b3ed',
+                    backgroundColor: 'rgba(99, 179, 237, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

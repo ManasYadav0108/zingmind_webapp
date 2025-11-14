@@ -1,0 +1,973 @@
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Employee</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: "Poppins", sans-serif;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            padding: 20px;
+        }
+        .form-container {
+            width: 500px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #0d47a1;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: 600;
+            display: block;
+            margin-top: 10px;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+        }
+        .btn {
+            background: #0d47a1;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+            font-size: 15px;
+        }
+        .btn:hover {
+            background: #1565c0;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Edit Employee</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <label>Name</label>
+            <input type="text" name="name" value="{{ employee.name }}" required>
+
+            <label>Email</label>
+            <input type="email" name="email" value="{{ employee.email }}" required>
+
+            <label>Role</label>
+            <input type="text" name="role" value="{{ employee.role }}" required>
+
+            <label>Department</label>
+            <select name="department" required>
+                {% for dept in departments %}
+                    <option value="{{ dept.id }}" {% if employee.department.id == dept.id %}selected{% endif %}>
+                        {{ dept.department_name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <label>Status</label>
+            <select name="status">
+                <option value="Active" {% if employee.is_active %}selected{% endif %}>Active</option>
+                <option value="Inactive" {% if not employee.is_active %}selected{% endif %}>Inactive</option>
+            </select>
+
+            <button type="submit" class="btn">Update Employee</button>
+        </form>
+    </div>
+</body>
+</html> {% endcomment %}
+
+{% comment %} 
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% if employee %}Edit{% else %}Add{% endif %} Employee</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: "Poppins", sans-serif; background: linear-gradient(135deg, #e3f2fd, #bbdefb); padding: 20px; }
+        .form-container { width: 500px; margin: 40px auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        h2 { color: #0d47a1; text-align: center; margin-bottom: 20px; }
+        label { font-weight: 600; display: block; margin-top: 10px; }
+        input, select { width: 100%; padding: 10px; margin-top: 6px; border: 1px solid #ccc; border-radius: 8px; }
+        .btn { background: #0d47a1; color: white; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; margin-top: 15px; width: 100%; font-size: 15px; }
+        .btn:hover { background: #1565c0; }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>{% if employee %}Edit{% else %}Add{% endif %} Employee</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <label>Name</label>
+            <input type="text" name="name" value="{{ employee.name|default:'' }}" required>
+
+            <label>Email</label>
+            <input type="email" name="email" value="{{ employee.email|default:'' }}" required>
+
+            <label>Role</label>
+            <input type="text" name="role" value="{{ employee.role|default:'' }}">
+
+            <label>Department</label>
+            <select name="department">
+                {% for dept in departments %}
+                    <option value="{{ dept.id }}" {% if employee and employee.department.id == dept.id %}selected{% endif %}>{{ dept.designation }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Status</label>
+            <select name="status">
+                <option value="Active" {% if employee and employee.is_active %}selected{% endif %}>Active</option>
+                <option value="Inactive" {% if employee and not employee.is_active %}selected{% endif %}>Inactive</option>
+            </select>
+
+            <button type="submit" class="btn">{% if employee %}Update{% else %}Add{% endif %} Employee</button>
+        </form>
+    </div>
+</body>
+</html> {% endcomment %}
+{% comment %} 
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% if employee %}Edit{% else %}Add{% endif %} Employee</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: "Poppins", sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .form-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            background: #fff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #0d47a1;
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-top: 12px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            margin-top: 6px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .btn {
+            background: #0d47a1;
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: all 0.2s ease-in-out;
+        }
+
+        .btn:hover {
+            background: #1565c0;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn-back {
+            background: #e0e0e0;
+            color: #333;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .btn-back:hover {
+            background: #d5d5d5;
+        }
+
+        .columns {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .column {
+            flex: 1;
+            min-width: 400px;
+        }
+
+        .section {
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid #eee;
+            margin: 15px 0;
+        }
+
+        @media (max-width: 900px) {
+            .columns {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <a href="{% url 'manage_employees' %}" class="btn btn-back">← Back to Employee List</a>
+        <h2>{% if employee %}Edit{% else %}Add{% endif %} Employee</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="columns">
+                <!-- Left Column -->
+                <div class="column">
+                    <div class="section">
+                        <h3>Basic Information</h3>
+                        <label>ID</label>
+                        <input type="text" name="id" value="{{ employee.id|default:'' }}" readonly>
+                        <label>Employee Code</label>
+                        <input type="text" name="employee_code" value="{{ employee.employee_code|default:'' }}">
+                        <label>Name</label>
+                        <input type="text" name="name" value="{{ employee.name|default:'' }}" required>
+                        <label>Role</label>
+                        <input type="text" name="role" value="{{ employee.role|default:'' }}">
+                        <label>Designation</label>
+                        <input type="text" name="designation" value="{{ employee.designation|default:'' }}">
+                        <label>Department</label>
+                        <select name="department_id">
+                            {% for dept in departments %}
+                                <option value="{{ dept.id }}" {% if employee and employee.department.id == dept.id %}selected{% endif %}>{{ dept.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label>Reporting Manager</label>
+                        <input type="text" name="reporting_manager_id" value="{{ employee.reporting_manager_id|default:'' }}">
+                        <label>Employment Type</label>
+                        <input type="text" name="employment_type" value="{{ employee.employment_type|default:'' }}">
+                        <label>Work Location</label>
+                        <input type="text" name="work_location" value="{{ employee.work_location|default:'' }}">
+                        <label>Status</label>
+                        <select name="is_active">
+                            <option value="1" {% if employee and employee.is_active %}selected{% endif %}>Active</option>
+                            <option value="0" {% if employee and not employee.is_active %}selected{% endif %}>Inactive</option>
+                        </select>
+                        <label>Date of Joining</label>
+                        <input type="date" name="doj" value="{{ employee.doj|date:'Y-m-d'|default:'' }}">
+                        <label>Date of Leaving</label>
+                        <input type="date" name="dol" value="{{ employee.dol|date:'Y-m-d'|default:'' }}">
+                        <label>Resignation Date</label>
+                        <input type="date" name="resignation_date" value="{{ employee.resignation_date|date:'Y-m-d'|default:'' }}">
+                        <label>Email</label>
+                        <input type="email" name="email" value="{{ employee.email|default:'' }}">
+                        <label>User Type</label>
+                        <input type="text" name="user_type" value="{{ employee.user_type|default:'' }}">
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="column">
+                    <div class="section">
+                        <h3>Bank Details</h3>
+                        <label>Bank Name</label>
+                        <input type="text" name="bank" value="{{ employee.bank.bank_name|default:'' }}">
+                        <label>Account Number</label>
+                        <input type="text" name="account_number" value="{{ employee.bank.account_number|default:'' }}">
+                        <label>IFSC</label>
+                        <input type="text" name="ifsc" value="{{ employee.bank.ifsc|default:'' }}">
+                        <label>PAN</label>
+                        <input type="text" name="pan" value="{{ employee.bank.pan|default:'' }}">
+                        <label>Aadhar</label>
+                        <input type="text" name="aadhar" value="{{ employee.bank.aadhar|default:'' }}">
+                    </div>
+
+                    <div class="section">
+                        <h3>Contact Details</h3>
+                        <label>Mobile Number</label>
+                        <input type="text" name="mobile_number" value="{{ employee.contact.mobile_number|default:'' }}">
+                        <label>Alternate Number</label>
+                        <input type="text" name="alternate_number" value="{{ employee.contact.alternate_number|default:'' }}">
+                        <label>Contact Number</label>
+                        <input type="text" name="contact_number" value="{{ employee.contact.contact_number|default:'' }}">
+                        <label>Permanent Address</label>
+                        <textarea name="permanent_address">{{ employee.contact.permanent_address|default:'' }}</textarea>
+                        <label>Present Address</label>
+                        <textarea name="present_address">{{ employee.contact.present_address|default:'' }}</textarea>
+                        <label>Emergency Contact Number</label>
+                        <input type="text" name="emergency_contact_number" value="{{ employee.contact.emergency_contact_number|default:'' }}">
+                        <label>Emergency Contact Person</label>
+                        <input type="text" name="emergency_contact_person" value="{{ employee.contact.emergency_contact_person|default:'' }}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Employee Assets and Goals Full Width -->
+            <div class="section">
+                <h3>Employee Assets</h3>
+                {% for asset in employee.assets.all %}
+                    <label>Asset ID</label>
+                    <input type="text" name="asset_id_{{ forloop.counter }}" value="{{ asset.id }}">
+                    <label>Issued Date</label>
+                    <input type="date" name="asset_issued_date_{{ forloop.counter }}" value="{{ asset.issued_date|date:'Y-m-d' }}">
+                    <label>Return Date</label>
+                    <input type="date" name="asset_return_date_{{ forloop.counter }}" value="{{ asset.return_date|date:'Y-m-d' }}">
+                    <label>Condition on Return</label>
+                    <input type="text" name="asset_condition_{{ forloop.counter }}" value="{{ asset.condition_on_return }}">
+                    <hr>
+                {% empty %}
+                    <p>No assets assigned.</p>
+                {% endfor %}
+            </div>
+
+            <div class="section">
+                <h3>Employee Goals</h3>
+                {% for goal in employee.goals.all %}
+                    <label>Goal</label>
+                    <input type="text" name="goal_{{ forloop.counter }}" value="{{ goal.goal }}">
+                    <label>Description</label>
+                    <textarea name="goal_description_{{ forloop.counter }}">{{ goal.description }}</textarea>
+                    <label>Target Date</label>
+                    <input type="date" name="goal_target_date_{{ forloop.counter }}" value="{{ goal.target_date|date:'Y-m-d' }}">
+                    <label>Status</label>
+                    <input type="text" name="goal_status_{{ forloop.counter }}" value="{{ goal.status }}">
+                    <label>Created Date</label>
+                    <input type="text" name="goal_created_date_{{ forloop.counter }}" value="{{ goal.created_date|default:'' }}" readonly>
+                    <hr>
+                {% empty %}
+                    <p>No goals assigned.</p>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="btn">{% if employee %}Update{% else %}Add{% endif %} Employee</button>
+        </form>
+    </div>
+</body>
+</html> {% endcomment %}
+
+
+{% comment %} <!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Employee</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: "Poppins", sans-serif;
+            background: #eef2f7;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .form-container {
+            max-width: 1200px;
+            background: #fff;
+            margin: auto;
+            padding: 25px 35px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.12);
+        }
+
+        h2 {
+            text-align: center;
+            color: #0d47a1;
+            margin-bottom: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .tab-btn {
+            padding: 10px 16px;
+            background: #e3e8ef;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-weight: 600;
+            border: none;
+        }
+
+        .tab-btn.active {
+            background: #0d47a1;
+            color: #fff;
+        }
+
+        .tab {
+            display: none;
+        }
+
+        .tab.active {
+            display: block;
+            animation: fadeIn .3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {opacity:0;}
+            to {opacity:1;}
+        }
+
+        label {
+            font-weight: 600;
+            margin-top: 10px;
+            display: block;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            margin-top: 5px;
+        }
+
+        textarea { min-height: 60px; }
+
+        .btn {
+            margin-top: 20px;
+            padding: 12px;
+            border: none;
+            width: 100%;
+            background: #0d47a1;
+            color: #fff;
+            font-size: 17px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn:hover { background: #1565c0; }
+
+        .toast {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<div class="toast" id="toast">✅ Changes Saved Successfully!</div>
+
+<div class="form-container">
+    <a href="{% url 'manage_employees' %}" class="btn-back">← Back</a>
+    <h2>Edit Employee</h2>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="openTab('basic')">Basic Info</button>
+        <button class="tab-btn" onclick="openTab('bank')">Bank</button>
+        <button class="tab-btn" onclick="openTab('contact')">Contact</button>
+        <button class="tab-btn" onclick="openTab('assets')">Assets</button>
+        <button class="tab-btn" onclick="openTab('goals')">Goals</button>
+    </div>
+
+    <form method="POST" id="employeeForm">
+        {% csrf_token %}
+
+        <!-- BASIC INFO TAB -->
+        <div class="tab active" id="basic">
+            <label>Employee Code</label>
+            <input type="text" value="{{ employee.employee_code }}" name="employee_code" readonly>
+
+            <label>Name</label>
+            <input type="text" name="name" value="{{ employee.name }}" required>
+
+            <label>Role</label>
+            <input type="text" name="role" value="{{ employee.role|default:'' }}">
+
+            <label>Designation</label>
+            <input type="text" name="designation" value="{{ employee.designation|default:'' }}">
+
+            <label>Email</label>
+            <input type="email" name="email" value="{{ employee.email|default:'' }}">
+
+            <label>Department</label>
+            <select name="department_id">
+                {% for dept in departments %}
+                    <option value="{{ dept.department_id }}" {% if employee.department_id == dept.department_id %}selected{% endif %}>
+                        {{ dept.department_name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <label>Reporting Manager ID</label>
+            <input type="text" name="reporting_manager_id" value="{{ employee.reporting_manager_id|default:'' }}">
+
+            <label>Employment Type</label>
+            <input type="text" name="employment_type" value="{{ employee.employment_type|default:'' }}">
+
+            <label>Work Location</label>
+            <input type="text" name="work_location" value="{{ employee.work_location|default:'' }}">
+
+            <label>User Type</label>
+            <input type="text" name="user_type" value="{{ employee.user_type|default:'' }}">
+
+            <label>Date of Joining</label>
+            <input type="date" name="doj" value="{{ employee.doj|date:'Y-m-d'|default:'' }}">
+
+            <label>Date of Leaving</label>
+            <input type="date" name="dol" value="{{ employee.date_of_leaving|date:'Y-m-d'|default:'' }}">
+
+            <label>Resignation Date</label>
+            <input type="date" name="resignation_date" value="{{ employee.resignation_date|date:'Y-m-d'|default:'' }}">
+
+            <label>Status</label>
+            <select name="is_active">
+                <option value="1" {% if employee.is_active %}selected{% endif %}>Active</option>
+                <option value="0" {% if not employee.is_active %}selected{% endif %}>Inactive</option>
+            </select>
+        </div>
+
+        <!-- BANK TAB -->
+        <div class="tab" id="bank">
+            {% with bank=employee.employeebankdetails_set.first %}
+                <label>Bank Name</label>
+                <input type="text" name="bank" value="{{ bank.bank|default:'' }}">
+
+                <label>Account No</label>
+                <input type="text" name="account_no" value="{{ bank.account_no|default:'' }}">
+
+                <label>IFSC</label>
+                <input type="text" name="ifsc" value="{{ bank.ifsc|default:'' }}">
+
+                <label>PAN</label>
+                <input type="text" name="pan" value="{{ bank.pan|default:'' }}">
+
+                <label>Aadhar</label>
+                <input type="text" name="aadhar" value="{{ bank.aadhar|default:'' }}">
+            {% endwith %}
+        </div>
+
+        <!-- CONTACT TAB -->
+        <div class="tab" id="contact">
+            {% with contact=employee.employeecontacts %}
+                <label>Mobile No</label>
+                <input type="text" name="mobile_no" value="{{ contact.mobile_no|default:'' }}">
+
+                <label>Alternate No</label>
+                <input type="text" name="alternate_no" value="{{ contact.alternate_no|default:'' }}">
+
+                <label>Contact No</label>
+                <input type="text" name="contact_no" value="{{ contact.contact_no|default:'' }}">
+
+                <label>Permanent Address</label>
+                <textarea name="permanent_address">{{ contact.permanent_address|default:'' }}</textarea>
+
+                <label>Present Address</label>
+                <textarea name="present_address">{{ contact.present_address|default:'' }}</textarea>
+
+                <label>Emergency Contact Person</label>
+                <input type="text" name="emergency_contact_person" value="{{ contact.emergency_contact_person|default:'' }}">
+
+                <label>Emergency Contact No</label>
+                <input type="text" name="emergency_contact_no" value="{{ contact.emergency_contact_no|default:'' }}">
+            {% endwith %}
+        </div>
+
+        <!-- ASSETS TAB -->
+        <div class="tab" id="assets">
+            {% for asset in employee.employeeassets_set.all %}
+                <label>Asset: {{ asset.asset.asset_name }}</label>
+                <label>Issued Date</label>
+                <input type="date" name="asset_issued_date_{{ asset.id }}" value="{{ asset.issued_date|date:'Y-m-d'|default:'' }}">
+
+                <label>Return Date</label>
+                <input type="date" name="asset_return_date_{{ asset.id }}" value="{{ asset.return_date|date:'Y-m-d'|default:'' }}">
+
+                <label>Condition on Return</label>
+                <input type="text" name="asset_condition_{{ asset.id }}" value="{{ asset.condition_on_return|default:'' }}">
+                <hr>
+            {% empty %}
+                <p>No assets assigned</p>
+            {% endfor %}
+        </div>
+
+        <!-- GOALS TAB -->
+        <div class="tab" id="goals">
+            {% for goal in employee.employeegoals_set.all %}
+                <label>Goal</label>
+                <textarea name="goal_description_{{ goal.id }}">{{ goal.goal_description|default:'' }}</textarea>
+
+                <label>Target Date</label>
+                <input type="date" name="goal_target_date_{{ goal.id }}" value="{{ goal.target_date|date:'Y-m-d'|default:'' }}">
+
+                <label>Status</label>
+                <input type="text" name="goal_status_{{ goal.id }}" value="{{ goal.status|default:'' }}">
+                <hr>
+            {% empty %}
+                <p>No goals assigned</p>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="btn">Update Employee</button>
+    </form>
+</div>
+
+<script>
+function openTab(tabName) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabName).classList.add('active');
+    event.target.classList.add('active');
+}
+
+// Success toast on submit
+document.getElementById("employeeForm").addEventListener("submit", () => {
+    let toast = document.getElementById("toast");
+    toast.style.display = "block";
+    setTimeout(() => toast.style.display = "none", 3000);
+});
+</script>
+</body>
+</html> {% endcomment %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Edit Employee | HRMS</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+body { background-color: #f4f6fb; color: #333; display: flex; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background-color: #1e293b;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: fixed;
+    height: 100%;
+    padding: 25px 0;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+}
+.sidebar-header { text-align: center; margin-bottom: 40px; }
+.sidebar-header h2 { font-size: 22px; font-weight: 700; letter-spacing: 1px; }
+.menu { display: flex; flex-direction: column; gap: 10px; }
+.menu a {
+    color: #cbd5e1;
+    text-decoration: none;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s;
+    border-radius: 8px;
+    margin: 0 10px;
+}
+.menu a:hover, .menu a.active { background-color: #334155; color: #fff; }
+.menu a i { font-size: 18px; }
+.logout { margin: 15px 20px; text-decoration: none; color: #f87171; display: flex; align-items: center; gap: 10px; }
+
+/* Main content */
+.main-content {
+    flex: 1;
+    margin-left: 250px;
+    padding: 30px 40px;
+}
+
+/* Topbar */
+.topbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 25px; gap: 10px; }
+.topbar h1 { font-size: 26px; font-weight: 700; color: #0f172a; }
+
+/* Form Container */
+.form-container {
+    width: 100%;
+    background: #fff;
+    padding: 30px 35px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+/* Tabs */
+.tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.tab-btn {
+    padding: 10px 18px;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    font-weight: 600;
+    border: none;
+    background: #e3e8ef;
+    transition: all 0.3s ease;
+    position: relative;
+}
+.tab-btn::after {
+    content: "";
+    position: absolute;
+    left: 0; bottom: 0;
+    width: 100%;
+    height: 3px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #4f46e5, #2563eb);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease;
+}
+.tab-btn:hover::after { transform: scaleX(1); transform-origin: left; }
+.tab-btn.active { background: linear-gradient(135deg, #4f46e5, #2563eb); color: #fff; }
+.tab-btn.active::after { transform: scaleX(1); }
+
+/* Tabs Content */
+.tab { display: none; animation: fadeIn 0.3s ease-in-out; }
+.tab.active { display: block; }
+
+/* FadeIn Animation */
+@keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+
+/* Inputs */
+label { font-weight: 600; margin-top: 10px; display: block; }
+input, select, textarea { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; margin-top: 5px; }
+textarea { min-height: 60px; }
+
+/* Buttons */
+button.btn {
+    margin-top: 20px;
+    padding: 12px;
+    border: none;
+    width: 100%;
+    background: linear-gradient(135deg, #4f46e5, #2563eb);
+    color: #fff;
+    font-size: 17px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+button.btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.18); }
+
+/* Toast */
+.toast {
+    background: #16a34a;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 6px;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: none;
+    font-weight: 600;
+}
+
+/* Back Button */
+.btn-back {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.3s;
+}
+.btn-back:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <div>
+        <div class="sidebar-header"><h2>HRMS Admin</h2></div>
+        <div class="menu">
+            <a href="{% url 'dashboard' %}"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="{% url 'manage_employees' %}" class="active"><i class="fas fa-users"></i> Employees</a>
+            <a href="{% url 'manage_payroll' %}"><i class="fas fa-money-bill-wave"></i> Payroll</a>
+            <a href="{% url 'manage_attendance' %}"><i class="fas fa-calendar-check"></i> Attendance</a>
+            <a href="{% url 'manage_leave' %}"><i class="fas fa-plane-departure"></i> Leave</a>
+            <a href="{% url 'manage_reports' %}"><i class="fas fa-chart-line"></i> Reports</a>
+            <a href="{% url 'manage_settings' %}"><i class="fas fa-cog"></i> Settings</a>
+        </div>
+    </div>
+    <a href="/logout/" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+    <div class="topbar">
+        <h1>Edit Employee</h1>
+    </div>
+
+    <div class="form-container">
+        <a href="{% url 'manage_employees' %}" class="btn-back"><i class="fas fa-arrow-left"></i> Back</a>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab('basic')">Basic Info</button>
+            <button class="tab-btn" onclick="openTab('bank')">Bank</button>
+            <button class="tab-btn" onclick="openTab('contact')">Contact</button>
+            <button class="tab-btn" onclick="openTab('assets')">Assets</button>
+            <button class="tab-btn" onclick="openTab('goals')">Goals</button>
+        </div>
+
+        <form method="POST" id="employeeForm">{% csrf_token %}
+            <!-- BASIC TAB -->
+            <div class="tab active" id="basic">
+                <label>Employee Code</label>
+                <input type="text" value="{{ employee.employee_code }}" name="employee_code" readonly>
+                <label>Name</label>
+                <input type="text" name="name" value="{{ employee.name }}" required>
+                <label>Role</label>
+                <input type="text" name="role" value="{{ employee.role|default:'' }}">
+                <label>Designation</label>
+                <input type="text" name="designation" value="{{ employee.designation|default:'' }}">
+                <label>Email</label>
+                <input type="email" name="email" value="{{ employee.email|default:'' }}">
+                <label>Department</label>
+                <select name="department_id">
+                    {% for dept in departments %}
+                        <option value="{{ dept.department_id }}" {% if employee.department_id == dept.department_id %}selected{% endif %}>
+                            {{ dept.department_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <label>Reporting Manager ID</label>
+                <input type="text" name="reporting_manager_id" value="{{ employee.reporting_manager_id|default:'' }}">
+                <label>Employment Type</label>
+                <input type="text" name="employment_type" value="{{ employee.employment_type|default:'' }}">
+                <label>Work Location</label>
+                <input type="text" name="work_location" value="{{ employee.work_location|default:'' }}">
+                <label>User Type</label>
+                <input type="text" name="user_type" value="{{ employee.user_type|default:'' }}">
+                <label>Date of Joining</label>
+                <input type="date" name="doj" value="{{ employee.doj|date:'Y-m-d'|default:'' }}">
+                <label>Date of Leaving</label>
+                <input type="date" name="dol" value="{{ employee.date_of_leaving|date:'Y-m-d'|default:'' }}">
+                <label>Resignation Date</label>
+                <input type="date" name="resignation_date" value="{{ employee.resignation_date|date:'Y-m-d'|default:'' }}">
+                <label>Status</label>
+                <select name="is_active">
+                    <option value="1" {% if employee.is_active %}selected{% endif %}>Active</option>
+                    <option value="0" {% if not employee.is_active %}selected{% endif %}>Inactive</option>
+                </select>
+            </div>
+
+            <!-- BANK TAB -->
+            <div class="tab" id="bank">
+                {% with bank=employee.employeebankdetails_set.first %}
+                    <label>Bank Name</label>
+                    <input type="text" name="bank" value="{{ bank.bank|default:'' }}">
+                    <label>Account No</label>
+                    <input type="text" name="account_no" value="{{ bank.account_no|default:'' }}">
+                    <label>IFSC</label>
+                    <input type="text" name="ifsc" value="{{ bank.ifsc|default:'' }}">
+                    <label>PAN</label>
+                    <input type="text" name="pan" value="{{ bank.pan|default:'' }}">
+                    <label>Aadhar</label>
+                    <input type="text" name="aadhar" value="{{ bank.aadhar|default:'' }}">
+                {% endwith %}
+            </div>
+
+            <!-- CONTACT TAB -->
+            <div class="tab" id="contact">
+                {% with contact=employee.employeecontacts %}
+                    <label>Mobile No</label>
+                    <input type="text" name="mobile_no" value="{{ contact.mobile_no|default:'' }}">
+                    <label>Alternate No</label>
+                    <input type="text" name="alternate_no" value="{{ contact.alternate_no|default:'' }}">
+                    <label>Contact No</label>
+                    <input type="text" name="contact_no" value="{{ contact.contact_no|default:'' }}">
+                    <label>Permanent Address</label>
+                    <textarea name="permanent_address">{{ contact.permanent_address|default:'' }}</textarea>
+                    <label>Present Address</label>
+                    <textarea name="present_address">{{ contact.present_address|default:'' }}</textarea>
+                    <label>Emergency Contact Person</label>
+                    <input type="text" name="emergency_contact_person" value="{{ contact.emergency_contact_person|default:'' }}">
+                    <label>Emergency Contact No</label>
+                    <input type="text" name="emergency_contact_no" value="{{ contact.emergency_contact_no|default:'' }}">
+                {% endwith %}
+            </div>
+
+            <!-- ASSETS TAB -->
+            <div class="tab" id="assets">
+                {% for asset in employee.employeeassets_set.all %}
+                    <label>Asset: {{ asset.asset.asset_name }}</label>
+                    <label>Issued Date</label>
+                    <input type="date" name="asset_issued_date_{{ asset.id }}" value="{{ asset.issued_date|date:'Y-m-d'|default:'' }}">
+                    <label>Return Date</label>
+                    <input type="date" name="asset_return_date_{{ asset.id }}" value="{{ asset.return_date|date:'Y-m-d'|default:'' }}">
+                    <label>Condition on Return</label>
+                    <input type="text" name="asset_condition_{{ asset.id }}" value="{{ asset.condition_on_return|default:'' }}">
+                    <hr>
+                {% empty %}
+                    <p>No assets assigned</p>
+                {% endfor %}
+            </div>
+
+            <!-- GOALS TAB -->
+            <div class="tab" id="goals">
+                {% for goal in employee.employeegoals_set.all %}
+                    <label>Goal</label>
+                    <textarea name="goal_description_{{ goal.id }}">{{ goal.goal_description|default:'' }}</textarea>
+                    <label>Target Date</label>
+                    <input type="date" name="goal_target_date_{{ goal.id }}" value="{{ goal.target_date|date:'Y-m-d'|default:'' }}">
+                    <label>Status</label>
+                    <input type="text" name="goal_status_{{ goal.id }}" value="{{ goal.status|default:'' }}">
+                    <hr>
+                {% empty %}
+                    <p>No goals assigned</p>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="btn"><i class="fas fa-save"></i> Update Employee</button>
+        </form>
+    </div>
+</div>
+
+<script>
+function openTab(tabName) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabName).classList.add('active');
+    event.target.classList.add('active');
+}
+
+// Success toast on submit
+document.getElementById("employeeForm").addEventListener("submit", () => {
+    let toast = document.getElementById("toast");
+    toast.style.display = "block";
+    setTimeout(() => toast.style.display = "none", 3000);
+});
+</script>
+</body>
+</html>

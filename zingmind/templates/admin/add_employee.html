@@ -1,0 +1,416 @@
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Employee | HRMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: #f4f6fb; color: #333; display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: #1e293b;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: fixed;
+            height: 100%;
+            padding: 25px 0;
+        }
+        .sidebar-header { text-align: center; margin-bottom: 40px; }
+        .sidebar-header h2 { font-size: 22px; font-weight: 700; letter-spacing: 1px; }
+        .menu { display: flex; flex-direction: column; gap: 10px; }
+        .menu a {
+            color: #cbd5e1;
+            text-decoration: none;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s;
+            border-radius: 8px;
+            margin: 0 10px;
+        }
+        .menu a:hover, .menu a.active { background-color: #334155; color: #fff; }
+        .logout {
+            margin: 15px 20px;
+            text-decoration: none;
+            color: #f87171;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Main content */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 30px 40px;
+        }
+        h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 25px;
+        }
+
+        .form-container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px 25px;
+        }
+
+        label {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        button {
+            grid-column: 1 / -1;
+            background-color: #2563eb;
+            color: white;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover { background-color: #1d4ed8; }
+
+        .back-btn {
+            display: inline-block;
+            background: #6b7280;
+            color: white;
+            text-decoration: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            margin-top: 20px;
+        }
+
+        .back-btn:hover { background: #4b5563; }
+
+        @media (max-width: 900px) {
+            form { grid-template-columns: 1fr; }
+            .main-content { margin-left: 200px; }
+        }
+        @media (max-width: 700px) {
+            .sidebar { display: none; }
+            .main-content { margin: 0; padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div>
+            <div class="sidebar-header">
+                <h2>HRMS Admin</h2>
+            </div>
+            <div class="menu">
+                <a href="{% url 'dashboard' %}"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="{% url 'manage_employees' %}" class="active"><i class="fas fa-users"></i> Employees</a>
+                <a href="{% url 'manage_payroll' %}"><i class="fas fa-money-bill-wave"></i> Payroll</a>
+                <a href="{% url 'manage_attendance' %}"><i class="fas fa-calendar-check"></i> Attendance</a>
+                <a href="{% url 'manage_leave' %}"><i class="fas fa-plane-departure"></i> Leave</a>
+                <a href="{% url 'manage_reports' %}"><i class="fas fa-chart-line"></i> Reports</a>
+                <a href="{% url 'manage_settings' %}"><i class="fas fa-cog"></i> Settings</a>
+            </div>
+        </div>
+        <a href="/logout/" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+
+    <!-- Main -->
+    <div class="main-content">
+        <h1>Add Employee</h1>
+
+        <div class="form-container">
+            <form method="POST">
+                {% csrf_token %}
+                
+                <!-- Basic Info -->
+                <label>ID</label>
+                <input type="text" name="employee_code" required>
+
+                <label>Name</label>
+                <input type="text" name="name" required>
+
+                <label>Email</label>
+                <input type="email" name="email" required>
+
+                <label>Role</label>
+                <input type="text" name="role">
+
+                <label>Designation</label>
+                <input type="text" name="designation">
+
+                <label>Department</label>
+                <select name="department_id" required>
+                    <option value="">Select Department</option>
+                    {% for dept in departments %}
+                        <option value="{{ dept.id }}">{{ dept.department_name }}</option>
+                    {% endfor %}
+                </select>
+
+                <label>Reporting Manager</label>
+                <input type="text" name="reporting_manager_id">
+
+                <label>Employment Type</label>
+                <select name="employment_type">
+                    <option value="Full-Time">Full-Time</option>
+                    <option value="Part-Time">Part-Time</option>
+                    <option value="Contract">Contract</option>
+                </select>
+
+                <label>Work Location</label>
+                <input type="text" name="work_location">
+
+                <label>Date of Joining</label>
+                <input type="date" name="doj">
+
+                <label>Date of Leaving</label>
+                <input type="date" name="dol">
+
+                <label>Resignation Date</label>
+                <input type="date" name="resignation_date">
+
+                <label>Status</label>
+                <select name="is_active">
+                    <option value="1">Active</option>
+                    <option value="0">Inactive</option>
+                </select>
+
+                <label>User Type</label>
+                <select name="user_type">
+                    <option value="Employee">Employee</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Manager">Hr</option>
+                </select>
+
+                <button type="submit">Add Employee</button>
+            </form>
+        </div>
+
+        <a href="{% url 'manage_employees' %}" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Employees</a>
+    </div>
+
+</body>
+</html> {% endcomment %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Employee | HRMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: #f4f6fb; color: #333; display: flex; min-height: 100vh; }
+
+        .sidebar {
+            width: 250px;
+            background-color: #1e293b;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: fixed;
+            height: 100%;
+            padding: 25px 0;
+        }
+        .sidebar-header { text-align: center; margin-bottom: 40px; }
+        .sidebar-header h2 { font-size: 22px; font-weight: 700; }
+        .menu { display: flex; flex-direction: column; gap: 10px; }
+        .menu a {
+            color: #cbd5e1;
+            text-decoration: none;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.3s;
+            border-radius: 8px;
+            margin: 0 10px;
+        }
+        .menu a:hover, .menu a.active { background-color: #334155; color: #fff; }
+        .logout { margin: 15px 20px; text-decoration: none; color: #f87171; display: flex; gap: 10px; }
+
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 30px 40px;
+        }
+        h1 { font-size: 26px; font-weight: 700; margin-bottom: 25px; }
+
+        .form-container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px 25px;
+        }
+
+        label { font-weight: 600; color: #1e293b; margin-bottom: 6px; display: block; }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        input[readonly] {
+            background-color: #e2e8f0;
+            cursor: not-allowed;
+        }
+
+        button {
+            grid-column: 1 / -1;
+            background-color: #2563eb;
+            color: white;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover { background-color: #1d4ed8; }
+
+        .back-btn {
+            display: inline-block;
+            background: #6b7280;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 900px) { form { grid-template-columns: 1fr; } }
+        @media (max-width: 700px) { .sidebar { display: none; } .main-content { margin: 0; padding: 20px; } }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div>
+            <div class="sidebar-header"><h2>HRMS Admin</h2></div>
+            <div class="menu">
+                <a href="{% url 'dashboard' %}"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="{% url 'manage_employees' %}" class="active"><i class="fas fa-users"></i> Employees</a>
+                <a href="{% url 'manage_payroll' %}"><i class="fas fa-money-bill-wave"></i> Payroll</a>
+                <a href="{% url 'manage_attendance' %}"><i class="fas fa-calendar-check"></i> Attendance</a>
+                <a href="{% url 'manage_leave' %}"><i class="fas fa-plane-departure"></i> Leave</a>
+                <a href="{% url 'manage_reports' %}"><i class="fas fa-chart-line"></i> Reports</a>
+                <a href="{% url 'manage_settings' %}"><i class="fas fa-cog"></i> Settings</a>
+            </div>
+        </div>
+        <a href="/logout/" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+
+    <div class="main-content">
+        <h1>Add Employee</h1>
+        <div class="form-container">
+            <form method="POST">
+                {% csrf_token %}
+
+                <!-- ✅ Auto-generated Employee Code Display -->
+                <label>Employee Code</label>
+                <input type="text" value="Auto Generated" readonly>
+
+                <label>Name</label>
+                <input type="text" name="name" required>
+
+                <label>Email</label>
+                <input type="email" name="email" required>
+
+                <label>Role</label>
+                <input type="text" name="role">
+
+                <label>Designation</label>
+                <input type="text" name="designation">
+
+                <label>Department</label>
+                <select name="department_id" required>
+                    <option value="">Select Department</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept.id }}">{{ dept.department_name }}</option>
+                    {% endfor %}
+                </select>
+
+                <label>Reporting Manager</label>
+                <input type="text" name="reporting_manager_id">
+
+                <label>Employment Type</label>
+                <select name="employment_type">
+                    <option value="Full-Time">Full-Time</option>
+                    <option value="Part-Time">Part-Time</option>
+                    <option value="Contract">Contract</option>
+                </select>
+
+                <label>Work Location</label>
+                <input type="text" name="work_location">
+
+                <label>Date of Joining</label>
+                <input type="date" name="doj">
+
+                <label>Date of Leaving</label>
+                <input type="date" name="dol">
+
+                <label>Resignation Date</label>
+                <input type="date" name="resignation_date">
+
+                <label>Status</label>
+                <select name="is_active">
+                    <option value="1">Active</option>
+                    <option value="0">Inactive</option>
+                </select>
+
+                <label>User Type</label>
+                <select name="user_type">
+                    <option value="Employee">Employee</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Manager">HR</option>
+                </select>
+
+                <button type="submit">Add Employee</button>
+            </form>
+        </div>
+
+        <a href="{% url 'manage_employees' %}" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Employees</a>
+    </div>
+
+</body>
+</html>
