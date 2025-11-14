@@ -71,7 +71,5 @@ jobs:
         slot-name: "Production"
         package: .
 
-          app-name: 'hrms-db'
-          slot-name: 'Production'
-
           
+
