@@ -13,6 +13,6 @@ python-dotenv==1.0.1
 # For handling user sessions, auth hashing already inside Django
 # No need to install separately
 
-OPTIONAL (only if used in your project)
+# OPTIONAL (only if used in your project)
 Pillow==10.4.0   # Images handling (profile photo etc.)
 djangorestframework==3.15.2  # REST APIs
