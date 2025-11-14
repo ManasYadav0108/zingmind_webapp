@@ -78,11 +78,15 @@ WSGI_APPLICATION = 'zingmind.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'zingmind_hrms',      # my database name
-        'USER': 'root',          # my MySQL username
-        'PASSWORD': 'Sharad@19', # my MySQL password
-        'HOST': 'localhost',     # or '127.0.0.1'
-        'PORT': '3306',          # default MySQL port
+        'NAME': 'mcsvohpp_hrms',
+        'USER': 'mcsvohpp_hrms_user',
+        'PASSWORD': '@hrmsuser#zing123',   # Replace this
+        'HOST': '103.191.209.46',
+        'PORT': '3306',
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+        },
     }
 }
 
